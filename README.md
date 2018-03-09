@@ -19,7 +19,7 @@ Add the dependency to your app's build.gradle file:
 
 ```
 dependencies {
-  compile 'com.github.herbig:etherscanapi:1.0.0'
+  compile 'com.github.herbig:etherscanapi:1.0.1'
 }
 ```
 
