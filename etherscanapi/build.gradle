@@ -2,7 +2,7 @@ apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 apply plugin: 'com.github.dcendents.android-maven'
 
-group = 'com.michaelherbig.etherscanapi'
+group = 'com.github.herbig'
 version = '1.0.0'
 
 android {
