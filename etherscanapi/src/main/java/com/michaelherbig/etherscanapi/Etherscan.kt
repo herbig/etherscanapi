@@ -16,7 +16,7 @@ import java.util.concurrent.TimeUnit
 import io.reactivex.disposables.Disposable
 
 
-class Etherscan constructor(apiKey: String) {
+class Etherscan constructor(apiKey: String, chain: Chain = Chain.MAIN) {
 
     private interface EtherscanApi {
 
@@ -92,6 +92,13 @@ class Etherscan constructor(apiKey: String) {
 
     }
 
+    enum class Chain(val url: String) {
+        MAIN("https://api.etherscan.io"),
+        RINKEBY("https://api-rinkeby.etherscan.io"),
+        ROPSTEN("https://api-ropsten.etherscan.io"),
+        KOVAN("https://api-kovan.etherscan.io"),
+    }
+
     enum class Sort {
         ASC, DESC
     }
@@ -105,6 +112,7 @@ class Etherscan constructor(apiKey: String) {
     }
 
     private val etherscanApi: EtherscanApi
+    private val chain: Chain
 
     init {
         val client = OkHttpClient().newBuilder()
@@ -119,13 +127,14 @@ class Etherscan constructor(apiKey: String) {
                 .build()
 
         val retrofit = Retrofit.Builder()
-                .baseUrl("https://api.etherscan.io")
+                .baseUrl(chain.url)
                 .addConverterFactory(GsonConverterFactory.create())
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                 .client(client)
                 .build()
 
-        etherscanApi = retrofit.create(EtherscanApi::class.java)
+        this.etherscanApi = retrofit.create(EtherscanApi::class.java)
+        this.chain = chain
     }
 
     fun getAccountBalance(address: String): Observable<BalanceResponse> {
@@ -189,6 +198,11 @@ class Etherscan constructor(apiKey: String) {
     }
 
     fun openWebSocket(address: String): Observable<WSResponse> {
+
+        if (chain != Chain.MAIN) {
+            throw UnsupportedOperationException("Testnet websockets are not yet supported by Etherscan.io")
+        }
+
         return Observable.create<WSResponse> { emitter ->
             val socketListener = object : WebSocketListener() {
 
